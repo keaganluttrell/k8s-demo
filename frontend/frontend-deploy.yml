@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-api
+  template:
+    metadata:
+      labels:
+        app: frontend-api
+    spec:
+      containers:
+        - image: registry.gitlab.com/kube-demo/frontend:latest
+          name: frontend-api
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: static
+              mountPath: /usr/share/nginx/html
+          ports:
+            - containerPort: 80
+              name: frontend-port
+      volumes:
+        - name: static
+          hostPath:
+            path: /Users/keaganluttrell/k8s-demo/frontend/dev
+      imagePullSecrets:
+        - name: k8s-demo-deploy-token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-api-lb
+spec:
+  selector:
+    app: frontend-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: frontend-port

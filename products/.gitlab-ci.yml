@@ -1,0 +1,46 @@
+stages:     
+  - build
+  - docker
+  - deploy
+
+build:
+  stage: build
+  image: node:16
+  script:
+    - npm install
+  cache:
+    paths:
+        - node_modules/
+
+docker:
+  image: docker:20
+  needs:
+    - build
+  stage: docker
+  services:
+    - docker:dind
+  before_script:
+    - echo "$MY_NAME"
+    - echo $CI_BUILD_TOKEN | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - docker build --pull -t "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID" .
+    - docker push "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - docker tag "$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID" "$CI_REGISTRY_IMAGE":"latest"
+    - docker push "$CI_REGISTRY_IMAGE":"latest"
+
+deploy:
+  stage: deploy
+  image: registry.gitlab.com/kube-demo/infrastructure:latest
+  needs:
+    - build
+    - docker
+  before_script:
+    - export IMAGE="$CI_REGISTRY_IMAGE":"$CI_PIPELINE_IID"
+    - aws configure set region "$AWS_DEFAULT_REGION"
+    - aws configure set output json
+    - aws eks update-kubeconfig --name "$CLUSTER_NAME"
+    - aws sts get-caller-identity
+  script:
+    - envsubst < products-deploy.yml | kubectl apply -f -
+  only:
+    - main

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: products-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: products-api
+  template:
+    metadata:
+      labels:
+        app: products-api
+    spec:
+      containers:
+        - image: registry.gitlab.com/kube-demo/products:latest
+          name: products-api
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+              name: products-port
+      imagePullSecrets:
+        - name: k8s-demo-deploy-token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: products-api-lb
+spec:
+  selector:
+    app: products-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: products-port
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: products-route-config
+spec:
+  service:
+    name: products-api-lb
+  routes:
+    - predicates:
+        - Path=/api/products/**
+      filters:
+        - StripPrefix=1
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: products-mapping
+spec:
+  gatewayRef:
+    name: cluster-gateway
+    namespace: default
+  routeConfigRef:
+    name: products-route-config

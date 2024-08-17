@@ -1,0 +1,5 @@
+./cart/cart-deploy.yml
+./products/products-deploy.yml
+./users/users-deploy.yml
+./frontend/frontend-deploy.yml
+

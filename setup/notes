@@ -1,0 +1,5 @@
+kubectl create secret docker-registry k8s-demo-deploy-token \
+    --docker-username="gitlab+deploy-token-1199228" \
+    --docker-password="6q8x-4uHiNzj4tiV5aFX" \
+    --docker-email=“keaganluttrell”7@gmail.com \
+    --docker-server="registry.gitlab.com"

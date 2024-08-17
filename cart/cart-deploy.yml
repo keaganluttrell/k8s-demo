@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart-api
+  template:
+    metadata:
+      labels:
+        app: cart-api
+    spec:
+      containers:
+        - image: registry.gitlab.com/kube-demo/cart:latest
+          name: cart-api
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+              name: cart-port
+      imagePullSecrets:
+        - name: k8s-demo-deploy-token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-api-lb
+spec:
+  selector:
+    app: cart-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: cart-port
+      
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: cart-route-config
+spec:
+  service:
+    name: cart-api-lb
+  routes:
+    - predicates:
+        - Path=/api/cart/**
+      filters:
+        - StripPrefix=1
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: cart-mapping
+spec:
+  gatewayRef:
+    name: cluster-gateway
+    namespace: default
+  routeConfigRef:
+    name: cart-route-config

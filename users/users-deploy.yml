@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-api
+  template:
+    metadata:
+      labels:
+        app: users-api
+    spec:
+      containers:
+        - image: registry.gitlab.com/kube-demo/users:latest
+          name: users-api
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8000
+              name: users-port
+      imagePullSecrets:
+        - name: k8s-demo-deploy-token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-api-lb
+spec:
+  selector:
+    app: users-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: users-port
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: users-route-config
+spec:
+  service:
+    name: users-api-lb
+  routes:
+    - predicates:
+        - Path=/api/users/**
+      filters:
+        - StripPrefix=1
+---
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayMapping
+metadata:
+  name: users-mapping
+spec:
+  gatewayRef:
+    name: cluster-gateway
+    namespace: default
+  routeConfigRef:
+    name: users-route-config

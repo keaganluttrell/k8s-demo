@@ -1,0 +1,4 @@
+gateway:
+  image: "keaganluttrell/gateway:1.1.5"
+scg-operator:
+  image: "keaganluttrell/scg-operator:1.1.5"

@@ -1,0 +1,24 @@
+{
+  "name": "cart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/kube-demo/cart.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/kube-demo/cart/issues"
+  },
+  "homepage": "https://gitlab.com/kube-demo/cart#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "morgan": "^1.10.0"
+  }
+}

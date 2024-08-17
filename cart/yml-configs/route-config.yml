@@ -1,0 +1,12 @@
+apiVersion: "tanzu.vmware.com/v1"
+kind: SpringCloudGatewayRouteConfig
+metadata:
+  name: cart-route-config
+spec:
+  service:
+    name: cart-api-lb
+  routes:
+    - predicates:
+        - Path=/api/cart/**
+      filters:
+        - StripPrefix=1

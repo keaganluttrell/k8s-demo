@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cart-api
+  template:
+    metadata:
+      labels:
+        app: cart-api
+    spec:
+      containers:
+        - image: registry.gitlab.com/kube-demo/cart:latest
+          name: cart-api
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+      imagePullSecrets:
+        - name: k8s-demo-deploy-token
+  
