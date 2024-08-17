@@ -14,18 +14,18 @@ Create a **group** in your Gitlab account (I will refer to my **group** as `kube
 
 - Set up AWS credentials ( k8s-demo/Settings/CICD )
 ![creds img](./infrastructure/images/gitlab-creds.png)
-    - _***NOTE:***_ CLUSTER_NAME can found in [./pulumi/index.ts](./pulumi/index.ts) -- mine is set to `k8s-demo-cluster`
+    - _***NOTE:***_ CLUSTER_NAME can found in [./pulumi/index.ts](./infrastructure/pulumi/index.ts) -- mine is set to `k8s-demo-cluster`
 
-Fork the this repo: [infrastructure](https://gitlab.com/kube-demo/infrastructure) into your **group**
+Fork the this repo: [infrastructure](https://github.com/keaganluttrell/k8s-demo) into your **group**
 
 ---
 ### Repo Overview
-- [eks cluster code](./pulumi/index.ts)
-- [Spring Cloud Gateway files](./spring-cloud-gateway-k8s-1.1.5/)
-- [Dockerfile](./Dockerfile)
-- [Gateway Config](./gateway-config.yml)
-- [Ingress Config](./ingress-config.yml)
-- [Gitlab CI](./.gitlab-ci.yml)
+- [eks cluster code](./infrastructure/pulumi/index.ts)
+- [Spring Cloud Gateway files](./infrastructure/spring-cloud-gateway-k8s-1.1.5/)
+- [Dockerfile](./infrastructure/Dockerfile)
+- [Gateway Config](./infrastrucutre/gateway-config.yml)
+- [Ingress Config](./infrastructure/ingress-config.yml)
+- [Gitlab CI](./infrastructure/.gitlab-ci.yml)
 
 ## Create Cluster
 ```bash
@@ -36,7 +36,7 @@ if everything looks good, select `yes` and continue. Alternatively you can use `
 
 _This will take a while... you can go to aws console and watch your cluster_
 
-![Insert AWS EKS CLUSTER IMG](./images/eks-list.png)
+![Insert AWS EKS CLUSTER IMG](./infrastructure/images/eks-list.png)
 
 ---
 ## Setup Cluster for Devops
@@ -88,7 +88,7 @@ In the infrastructure repo
 
 When complete it should look like this:
 
-![gitlab connected](./images/gitlab-cluster-connect.png)
+![gitlab connected](./infrastructure/images/gitlab-cluster-connect.png)
 
 ---
 ## Authenticate Gitlab Registry in Cluster 
@@ -100,7 +100,7 @@ When using Gitlab registry we need to configure our EKS cluster to authenticate 
 ### Create deploy token in Gitlab
 In your gitlab **group**, go to the `Settings` tab and `Repository` tab under that, then create a token. Take note of `token` and `token-username`
 
-![gitlab deploy token](./images/gitlab-deploy-token-create.png)
+![gitlab deploy token](./infrastructure/images/gitlab-deploy-token-create.png)
 
 We are creating a secret in our cluster and we must specify a `name`. When a configuration is applied, (we will see later), we need to reference this `name` so that our cluster can reference the credentials to authenticate with our gitlab registry. 
 
@@ -117,9 +117,9 @@ _note: the `insert-secret-name` will be what we reference in deploy ymls and we 
 
 ## Infrastructure Image
 We need to create a base image for our deployments that has all of our tools (aws, kubectl, etc..)
-This repo has a [Dockerfile](./Dockerfile) that does just that.
+This repo has a [Dockerfile](./infrastructure/Dockerfile) that does just that.
 
-in our [.gitlab-ci.yml](./.gitlab-ci.yml) we are creating pipeline to create this image in our gitlab registry
+in our [.gitlab-ci.yml](./infrastructure/.gitlab-ci.yml) we are creating pipeline to create this image in our gitlab registry
 
 ```yml
 build:
@@ -150,12 +150,12 @@ Here is where you can find the location of your container
 ### Setup
 [Docs](https://docs.vmware.com/en/VMware-Spring-Cloud-Gateway-for-Kubernetes/1.1/scg-k8s/GUID-installation-helm.html)
 
-We already have the [files](./spring-cloud-gateway-k8s-1.1.5/) for spring cloud gateway we should start with the relocate script
+We already have the [files](./infrastructure/spring-cloud-gateway-k8s-1.1.5/) for spring cloud gateway we should start with the relocate script
 
 Login in to docker on your personal account
 
 ```bash
-$ ./spring-cloud-gateway-k8s-1.1.5/scripts/relocate-images.sh <account_name> 
+$ ./infrastructure/spring-cloud-gateway-k8s-1.1.5/scripts/relocate-images.sh <account_name> 
 ```
 ```bash
 $ ./spring-cloud-gateway-k8s-1.1.5/scripts/install-spring-cloud-gateway.sh
