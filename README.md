@@ -13,7 +13,7 @@ Login or Create Gitlab account
 Create a **group** in your Gitlab account (I will refer to my **group** as `kube-demo` from here on)
 
 - Set up AWS credentials ( k8s-demo/Settings/CICD )
-![creds img](./images/gitlab-creds.png)
+![creds img](./infrastructure/images/gitlab-creds.png)
     - _***NOTE:***_ CLUSTER_NAME can found in [./pulumi/index.ts](./pulumi/index.ts) -- mine is set to `k8s-demo-cluster`
 
 Fork the this repo: [infrastructure](https://gitlab.com/kube-demo/infrastructure) into your **group**
